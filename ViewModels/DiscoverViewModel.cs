@@ -51,6 +51,14 @@ public partial class DiscoverViewModel : ObservableObject
         }
         else
         {
+            // Request location permission (required for BLE scanning on Android)
+            var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+            if (status != PermissionStatus.Granted)
+            {
+                StatusMessage = "Location permission is required to scan for nearby devices.";
+                return;
+            }
+
             NearbyDevices.Clear();
             IsScanning = true;
             StatusMessage = "Scanning...";
