@@ -25,7 +25,7 @@ public class SttService
 
         try
         {
-            await _stt.StartListeningAsync(System.Globalization.CultureInfo.CurrentCulture, ct);
+            await _stt.StartListenAsync(new SpeechToTextOptions { Culture = System.Globalization.CultureInfo.CurrentCulture }, ct);
             return await tcs.Task.WaitAsync(ct);
         }
         catch (OperationCanceledException)
@@ -35,7 +35,7 @@ public class SttService
         finally
         {
             _stt.RecognitionResultCompleted -= OnCompleted;
-            await _stt.StopListeningAsync(CancellationToken.None);
+            await _stt.StopListenAsync(CancellationToken.None);
         }
     }
 }
