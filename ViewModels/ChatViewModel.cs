@@ -69,11 +69,19 @@ public partial class ChatViewModel : ObservableObject
     [RelayCommand]
     private async Task StartListeningAsync()
     {
-        if (IsListening) return;
+        if (IsListening)
+        {
+            _stt.StopListening();
+            return;
+        }
+
         IsListening = true;
-        var result = await _stt.ListenAsync();
+        var result = await _stt.ListenAsync(
+            onPartialResult: partial => MainThread.BeginInvokeOnMainThread(() => MessageText = partial));
+
         if (!string.IsNullOrWhiteSpace(result))
             MessageText = result;
+
         IsListening = false;
     }
 

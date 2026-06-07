@@ -19,6 +19,7 @@ public class BleService
     private IDevice? _connectedDevice;
     private ICharacteristic? _messageChar;
     private ICharacteristic? _responseChar;
+    private CancellationTokenSource? _keepAliveCts;
 
     public event Action<NearbyDevice>? DeviceDiscovered;
     public event Action<string>? MessageReceived;
@@ -64,6 +65,7 @@ public class BleService
 
     private void OnDeviceDisconnected(object? sender, DeviceEventArgs e)
     {
+        _keepAliveCts?.Cancel();
         _connectedDevice = null;
         _messageChar = null;
         _responseChar = null;
@@ -114,7 +116,12 @@ public class BleService
             if (requestChar == null) return false;
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(myName);
-            return await requestChar.WriteAsync(bytes) >= 0;
+            var result = await requestChar.WriteAsync(bytes) >= 0;
+
+            if (result)
+                StartKeepAlive();
+
+            return result;
         }
         catch
         {
@@ -124,6 +131,26 @@ public class BleService
     }
 
     // ── Messaging ─────────────────────────────────────────────────────────────
+
+    private void StartKeepAlive()
+    {
+        _keepAliveCts?.Cancel();
+        _keepAliveCts = new CancellationTokenSource();
+        var token = _keepAliveCts.Token;
+
+        Task.Run(async () =>
+        {
+            while (!token.IsCancellationRequested && _connectedDevice != null)
+            {
+                await Task.Delay(5000, token).ConfigureAwait(false);
+                if (_messageChar != null && !token.IsCancellationRequested)
+                {
+                    try { await _messageChar.ReadAsync(token); }
+                    catch { /* ignore read errors — connection drop handled by OnDeviceDisconnected */ }
+                }
+            }
+        }, token);
+    }
 
     public async Task<bool> SendMessageAsync(string text)
     {

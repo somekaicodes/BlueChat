@@ -82,7 +82,8 @@ public partial class DiscoverViewModel : ObservableObject
 
     private static async Task<bool> RequestPermissionsAsync()
     {
-        // Location is required for BLE scanning on Android
+#if ANDROID
+        // Location permission required for BLE scanning on Android
         var location = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
         if (location != PermissionStatus.Granted)
         {
@@ -93,8 +94,7 @@ public partial class DiscoverViewModel : ObservableObject
             return false;
         }
 
-        // Bluetooth permissions on Android 12+
-#if ANDROID
+        // Additional Bluetooth permissions on Android 12+
         if (OperatingSystem.IsAndroidVersionAtLeast(31))
         {
             var bt = await Permissions.RequestAsync<Permissions.Bluetooth>();
@@ -108,6 +108,7 @@ public partial class DiscoverViewModel : ObservableObject
             }
         }
 #endif
+        // iOS handles Bluetooth permission automatically via CBCentralManager
         return true;
     }
 

@@ -53,7 +53,8 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.png" />
+		<MauiIcon Include="Resources\AppIcon\appicon.png"
+		          Dark="Resources\AppIcon\appicon_dark.png" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1B30A0" BaseSize="128,128" />
@@ -68,6 +69,13 @@
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
+
+	<!-- Clear macOS extended attributes before codesigning -->
+	<Target Name="ClearXattrBeforeCodesign"
+	        BeforeTargets="_CodesignAppBundle;_CodesignNativeLibraries"
+	        Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+		<Exec Command="find '$(AppBundleDir)' -exec xattr -c {} \; 2>/dev/null || true" />
+	</Target>
 
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="14.2.0" />
