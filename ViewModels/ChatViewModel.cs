@@ -9,6 +9,7 @@ namespace BlueChat.ViewModels;
 public partial class ChatViewModel : ObservableObject
 {
     private readonly BleService _ble;
+    private readonly IBlePeripheralService _peripheral;
     private readonly TtsService _tts;
     private readonly SttService _stt;
 
@@ -26,12 +27,18 @@ public partial class ChatViewModel : ObservableObject
 
     public ObservableCollection<ChatMessage> Messages { get; } = [];
 
-    public ChatViewModel(BleService ble, TtsService tts, SttService stt)
+    public ChatViewModel(BleService ble, IBlePeripheralService peripheral, TtsService tts, SttService stt)
     {
         _ble = ble;
+        _peripheral = peripheral;
         _tts = tts;
         _stt = stt;
+
+        // Central path: Device A receives messages via GATT notifications from Device B
         _ble.MessageReceived += OnMessageReceived;
+
+        // Peripheral path: Device B receives messages when Device A writes to its characteristic
+        _peripheral.MessageReceived += OnMessageReceived;
     }
 
     [RelayCommand]
@@ -43,7 +50,15 @@ public partial class ChatViewModel : ObservableObject
         var text = MessageText.Trim();
         if (string.IsNullOrEmpty(text)) return;
 
-        var sent = await _ble.SendMessageAsync(text);
+        bool sent;
+        if (_ble.IsConnected)
+            sent = await _ble.SendMessageAsync(text);
+        else
+        {
+            await _peripheral.SendMessageAsync(text);
+            sent = true;
+        }
+
         if (sent)
         {
             Messages.Add(new ChatMessage { Text = text, Direction = MessageDirection.Sent });
@@ -56,11 +71,9 @@ public partial class ChatViewModel : ObservableObject
     {
         if (IsListening) return;
         IsListening = true;
-
         var result = await _stt.ListenAsync();
         if (!string.IsNullOrWhiteSpace(result))
             MessageText = result;
-
         IsListening = false;
     }
 
@@ -69,7 +82,6 @@ public partial class ChatViewModel : ObservableObject
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             Messages.Add(new ChatMessage { Text = text, Direction = MessageDirection.Received });
-
             if (TtsEnabled)
                 await _tts.SpeakAsync(text);
         });
