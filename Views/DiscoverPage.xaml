@@ -4,49 +4,107 @@
              xmlns:vm="clr-namespace:BlueChat.ViewModels"
              xmlns:models="clr-namespace:BlueChat.Models"
              x:Class="BlueChat.Views.DiscoverPage"
-             Title="Find Devices">
+             Title="Discover"
+             BackgroundColor="{StaticResource Primary}">
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="16" RowSpacing="12">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="20,16" RowSpacing="16">
 
-        <!-- Status -->
-        <Label Grid.Row="0"
-               Text="{Binding StatusMessage}"
-               FontSize="14"
-               TextColor="Gray"
-               HorizontalOptions="Center" />
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label Text="Find Nearby Devices"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource White}" />
+            <Label Text="{Binding StatusMessage}"
+                   FontSize="13"
+                   TextColor="{StaticResource LightBlue}" />
+        </VerticalStackLayout>
 
         <!-- Scan button -->
         <Button Grid.Row="1"
-                Text="{Binding IsScanning, StringFormat='{0:Stop Scanning;Scan for Devices}'}"
                 Command="{Binding ToggleScanCommand}"
-                BackgroundColor="#0A84FF"
-                TextColor="White"
-                CornerRadius="12"
                 HeightRequest="52"
-                FontSize="16" />
+                FontSize="17"
+                FontAttributes="Bold"
+                CornerRadius="14">
+            <Button.Triggers>
+                <DataTrigger TargetType="Button" Binding="{Binding IsScanning}" Value="True">
+                    <Setter Property="Text" Value="Stop Scanning" />
+                    <Setter Property="BackgroundColor" Value="{StaticResource PrimaryDark}" />
+                </DataTrigger>
+                <DataTrigger TargetType="Button" Binding="{Binding IsScanning}" Value="False">
+                    <Setter Property="Text" Value="Scan for Devices" />
+                    <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
+                </DataTrigger>
+            </Button.Triggers>
+        </Button>
+
+        <!-- Scanning indicator -->
+        <ActivityIndicator Grid.Row="2"
+                           IsRunning="{Binding IsScanning}"
+                           IsVisible="{Binding IsScanning}"
+                           Color="{StaticResource LightBlue}"
+                           HeightRequest="28" />
 
         <!-- Device list -->
-        <CollectionView Grid.Row="2"
-                        ItemsSource="{Binding NearbyDevices}"
-                        EmptyView="No devices found yet.">
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding NearbyDevices}">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="8" Margin="0,40">
+                    <Label Text="No devices found yet."
+                           FontSize="16"
+                           TextColor="{StaticResource LightBlue}"
+                           HorizontalOptions="Center" />
+                    <Label Text="Make sure nearby devices have BlueChat open and discoverable."
+                           FontSize="13"
+                           TextColor="{StaticResource LightBlue}"
+                           HorizontalTextAlignment="Center"
+                           Opacity="0.7" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:NearbyDevice">
-                    <Border Margin="0,4" StrokeThickness="1" Stroke="#E0E0E0">
+                    <Border Margin="0,6"
+                            BackgroundColor="#1E3DB5"
+                            StrokeThickness="0">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12" />
+                            <RoundRectangle CornerRadius="16" />
                         </Border.StrokeShape>
-                        <Grid ColumnDefinitions="*,Auto" Padding="16">
-                            <VerticalStackLayout Grid.Column="0">
-                                <Label Text="{Binding Name}" FontSize="17" FontAttributes="Bold" />
-                                <Label Text="{Binding SignalDisplay}" FontSize="13" TextColor="Gray" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14" ColumnSpacing="12">
+
+                            <!-- BT icon circle -->
+                            <Border Grid.Column="0"
+                                    BackgroundColor="{StaticResource Accent}"
+                                    WidthRequest="44" HeightRequest="44"
+                                    StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="22" />
+                                </Border.StrokeShape>
+                                <Label Text="&#x1F4F6;"
+                                       FontSize="20"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+
+                            <!-- Name + signal -->
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding Name}"
+                                       FontSize="17"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource White}" />
+                                <Label Text="{Binding SignalDisplay}"
+                                       FontSize="13"
+                                       TextColor="{StaticResource LightBlue}" />
                             </VerticalStackLayout>
 
-                            <Button Grid.Column="1"
+                            <!-- Connect button -->
+                            <Button Grid.Column="2"
                                     Text="Connect"
-                                    BackgroundColor="#0A84FF"
-                                    TextColor="White"
-                                    CornerRadius="8"
+                                    BackgroundColor="{StaticResource Accent}"
+                                    TextColor="{StaticResource White}"
+                                    CornerRadius="10"
                                     FontSize="14"
+                                    Padding="12,8"
                                     CommandParameter="{Binding .}"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DiscoverViewModel}}, Path=ConnectToDeviceCommand}" />
                         </Grid>

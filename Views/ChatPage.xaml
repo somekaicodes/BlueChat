@@ -4,46 +4,63 @@
              xmlns:vm="clr-namespace:BlueChat.ViewModels"
              xmlns:models="clr-namespace:BlueChat.Models"
              x:Class="BlueChat.Views.ChatPage"
-             Title="{Binding ConnectedDeviceName}">
+             Title="{Binding ConnectedDeviceName}"
+             BackgroundColor="{StaticResource Primary}">
 
-    <Grid RowDefinitions="*,Auto" Padding="0">
+    <Grid RowDefinitions="*,Auto">
 
         <!-- Message list -->
         <CollectionView Grid.Row="0"
                         ItemsSource="{Binding Messages}"
                         x:Name="MessageList"
-                        Margin="12,8">
+                        Margin="16,12">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="8" Margin="0,60">
+                    <Label Text="No messages yet."
+                           FontSize="16"
+                           TextColor="{StaticResource LightBlue}"
+                           HorizontalOptions="Center" />
+                    <Label Text="Send a message to start the conversation."
+                           FontSize="13"
+                           TextColor="{StaticResource LightBlue}"
+                           HorizontalTextAlignment="Center"
+                           Opacity="0.7" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:ChatMessage">
                     <Grid Padding="0,4">
-                        <!-- Sent bubble -->
+
+                        <!-- Sent bubble (right, off-white) -->
                         <Border IsVisible="{Binding IsSent}"
-                                BackgroundColor="#0A84FF"
+                                BackgroundColor="{StaticResource BubbleWhite}"
                                 StrokeThickness="0"
                                 HorizontalOptions="End"
-                                MaximumWidthRequest="280">
+                                MaximumWidthRequest="280"
+                                Margin="60,0,0,0">
                             <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="16" />
+                                <RoundRectangle CornerRadius="18,18,4,18" />
                             </Border.StrokeShape>
                             <Label Text="{Binding Text}"
-                                   TextColor="White"
+                                   TextColor="{StaticResource OffBlack}"
                                    FontSize="16"
-                                   Margin="12,8" />
+                                   Margin="14,10" />
                         </Border>
 
-                        <!-- Received bubble -->
+                        <!-- Received bubble (left, muted light blue) -->
                         <Border IsVisible="{Binding IsReceived}"
-                                BackgroundColor="#E9E9EB"
+                                BackgroundColor="{StaticResource ReceivedBubble}"
                                 StrokeThickness="0"
                                 HorizontalOptions="Start"
-                                MaximumWidthRequest="280">
+                                MaximumWidthRequest="280"
+                                Margin="0,0,60,0">
                             <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="16" />
+                                <RoundRectangle CornerRadius="18,18,18,4" />
                             </Border.StrokeShape>
                             <Label Text="{Binding Text}"
-                                   TextColor="Black"
+                                   TextColor="{StaticResource OffBlack}"
                                    FontSize="16"
-                                   Margin="12,8" />
+                                   Margin="14,10" />
                         </Border>
                     </Grid>
                 </DataTemplate>
@@ -51,47 +68,82 @@
         </CollectionView>
 
         <!-- Input bar -->
-        <Grid Grid.Row="1"
-              ColumnDefinitions="Auto,*,Auto,Auto"
-              Padding="12,8"
-              ColumnSpacing="8"
-              BackgroundColor="#F2F2F7">
+        <Border Grid.Row="1"
+                BackgroundColor="{StaticResource InputBarBackground}"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20,20,0,0" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto"
+                  Padding="12,10"
+                  ColumnSpacing="8">
 
-            <!-- TTS toggle -->
-            <Button Grid.Column="0"
-                    Text="{Binding TtsEnabled, StringFormat='{0:🔊;🔇}'}"
-                    BackgroundColor="Transparent"
-                    TextColor="#0A84FF"
-                    FontSize="22"
-                    Command="{Binding ToggleTtsCommand}"
-                    WidthRequest="44" />
+                <!-- TTS toggle -->
+                <Button Grid.Column="0"
+                        BackgroundColor="Transparent"
+                        FontSize="24"
+                        WidthRequest="48"
+                        HeightRequest="48"
+                        Padding="0"
+                        Command="{Binding ToggleTtsCommand}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding TtsEnabled}" Value="True">
+                            <Setter Property="Text" Value="🔊" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Button" Binding="{Binding TtsEnabled}" Value="False">
+                            <Setter Property="Text" Value="🔇" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
 
-            <!-- Text input -->
-            <Entry Grid.Column="1"
-                   Text="{Binding MessageText}"
-                   Placeholder="Message"
-                   FontSize="16"
-                   VerticalOptions="Center"
-                   ReturnCommand="{Binding SendCommand}" />
+                <!-- Text input -->
+                <Border Grid.Column="1"
+                        BackgroundColor="#1E3DB5"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="22" />
+                    </Border.StrokeShape>
+                    <Entry Text="{Binding MessageText}"
+                           Placeholder="Message"
+                           PlaceholderColor="{StaticResource LightBlue}"
+                           TextColor="{StaticResource White}"
+                           FontSize="16"
+                           Margin="14,0"
+                           ReturnCommand="{Binding SendCommand}" />
+                </Border>
 
-            <!-- Mic button -->
-            <Button Grid.Column="2"
-                    Text="{Binding IsListening, StringFormat='{0:⏹;🎤}'}"
-                    BackgroundColor="Transparent"
-                    TextColor="#0A84FF"
-                    FontSize="22"
-                    Command="{Binding StartListeningCommand}"
-                    WidthRequest="44" />
+                <!-- Mic button -->
+                <Button Grid.Column="2"
+                        BackgroundColor="Transparent"
+                        FontSize="24"
+                        WidthRequest="48"
+                        HeightRequest="48"
+                        Padding="0"
+                        Command="{Binding StartListeningCommand}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsListening}" Value="True">
+                            <Setter Property="Text" Value="⏹" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsListening}" Value="False">
+                            <Setter Property="Text" Value="🎤" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
 
-            <!-- Send button -->
-            <Button Grid.Column="3"
-                    Text="Send"
-                    BackgroundColor="#0A84FF"
-                    TextColor="White"
-                    CornerRadius="10"
-                    FontSize="16"
-                    Command="{Binding SendCommand}" />
+                <!-- Send button -->
+                <Button Grid.Column="3"
+                        Text="Send"
+                        BackgroundColor="{StaticResource Accent}"
+                        TextColor="{StaticResource White}"
+                        CornerRadius="22"
+                        FontSize="15"
+                        FontAttributes="Bold"
+                        Padding="16,0"
+                        HeightRequest="44"
+                        Command="{Binding SendCommand}" />
 
-        </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </ContentPage>
