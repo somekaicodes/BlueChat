@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BlueChat.ViewModels"
+             x:Class="BlueChat.Views.SettingsPage"
+             Title="Settings">
+
+    <ContentPage.BindingContext>
+        <vm:SettingsViewModel />
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20">
+
+            <Label Text="Your Device Name"
+                   FontSize="16" FontAttributes="Bold" />
+
+            <Entry Text="{Binding DeviceName}"
+                   Placeholder="e.g. Alice's Phone"
+                   FontSize="16"
+                   ReturnCommand="{Binding SaveDeviceNameCommand}" />
+
+            <Button Text="Save Name"
+                    Command="{Binding SaveDeviceNameCommand}"
+                    HorizontalOptions="Start"
+                    BackgroundColor="#0A84FF"
+                    TextColor="White"
+                    CornerRadius="10" />
+
+            <BoxView HeightRequest="1" Color="#E0E0E0" Margin="0,8" />
+
+            <Label Text="Discoverability"
+                   FontSize="16" FontAttributes="Bold" />
+
+            <HorizontalStackLayout Spacing="12">
+                <Switch IsToggled="{Binding IsDiscoverable}" />
+                <Label Text="{Binding IsDiscoverable, StringFormat='{0:Allow nearby devices to find me;Do not broadcast}'}"
+                       VerticalOptions="Center"
+                       FontSize="15" />
+            </HorizontalStackLayout>
+
+            <Label Text="When discoverable, your device name will be visible to nearby BlueChat users."
+                   FontSize="13"
+                   TextColor="Gray"
+                   Margin="0,-8,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

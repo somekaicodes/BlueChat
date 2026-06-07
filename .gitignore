@@ -1,0 +1,17 @@
+# .NET / MAUI
+obj/
+bin/
+*.user
+.vs/
+.vscode/
+*.DS_Store
+
+# NuGet
+packages/
+*.nupkg
+
+# Rider
+.idea/
+
+# macOS
+.DS_Store

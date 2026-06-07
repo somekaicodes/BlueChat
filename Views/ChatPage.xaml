@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BlueChat.ViewModels"
+             xmlns:models="clr-namespace:BlueChat.Models"
+             x:Class="BlueChat.Views.ChatPage"
+             Title="{Binding ConnectedDeviceName}">
+
+    <Grid RowDefinitions="*,Auto" Padding="0">
+
+        <!-- Message list -->
+        <CollectionView Grid.Row="0"
+                        ItemsSource="{Binding Messages}"
+                        x:Name="MessageList"
+                        Margin="12,8">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:ChatMessage">
+                    <Grid Padding="0,4">
+                        <!-- Sent bubble -->
+                        <Border IsVisible="{Binding IsSent}"
+                                BackgroundColor="#0A84FF"
+                                StrokeThickness="0"
+                                HorizontalOptions="End"
+                                MaximumWidthRequest="280">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Label Text="{Binding Text}"
+                                   TextColor="White"
+                                   FontSize="16"
+                                   Margin="12,8" />
+                        </Border>
+
+                        <!-- Received bubble -->
+                        <Border IsVisible="{Binding IsReceived}"
+                                BackgroundColor="#E9E9EB"
+                                StrokeThickness="0"
+                                HorizontalOptions="Start"
+                                MaximumWidthRequest="280">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Label Text="{Binding Text}"
+                                   TextColor="Black"
+                                   FontSize="16"
+                                   Margin="12,8" />
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Input bar -->
+        <Grid Grid.Row="1"
+              ColumnDefinitions="Auto,*,Auto,Auto"
+              Padding="12,8"
+              ColumnSpacing="8"
+              BackgroundColor="#F2F2F7">
+
+            <!-- TTS toggle -->
+            <Button Grid.Column="0"
+                    Text="{Binding TtsEnabled, StringFormat='{0:🔊;🔇}'}"
+                    BackgroundColor="Transparent"
+                    TextColor="#0A84FF"
+                    FontSize="22"
+                    Command="{Binding ToggleTtsCommand}"
+                    WidthRequest="44" />
+
+            <!-- Text input -->
+            <Entry Grid.Column="1"
+                   Text="{Binding MessageText}"
+                   Placeholder="Message"
+                   FontSize="16"
+                   VerticalOptions="Center"
+                   ReturnCommand="{Binding SendCommand}" />
+
+            <!-- Mic button -->
+            <Button Grid.Column="2"
+                    Text="{Binding IsListening, StringFormat='{0:⏹;🎤}'}"
+                    BackgroundColor="Transparent"
+                    TextColor="#0A84FF"
+                    FontSize="22"
+                    Command="{Binding StartListeningCommand}"
+                    WidthRequest="44" />
+
+            <!-- Send button -->
+            <Button Grid.Column="3"
+                    Text="Send"
+                    BackgroundColor="#0A84FF"
+                    TextColor="White"
+                    CornerRadius="10"
+                    FontSize="16"
+                    Command="{Binding SendCommand}" />
+
+        </Grid>
+    </Grid>
+</ContentPage>

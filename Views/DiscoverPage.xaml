@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BlueChat.ViewModels"
+             xmlns:models="clr-namespace:BlueChat.Models"
+             x:Class="BlueChat.Views.DiscoverPage"
+             Title="Find Devices">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="16" RowSpacing="12">
+
+        <!-- Status -->
+        <Label Grid.Row="0"
+               Text="{Binding StatusMessage}"
+               FontSize="14"
+               TextColor="Gray"
+               HorizontalOptions="Center" />
+
+        <!-- Scan button -->
+        <Button Grid.Row="1"
+                Text="{Binding IsScanning, StringFormat='{0:Stop Scanning;Scan for Devices}'}"
+                Command="{Binding ToggleScanCommand}"
+                BackgroundColor="#0A84FF"
+                TextColor="White"
+                CornerRadius="12"
+                HeightRequest="52"
+                FontSize="16" />
+
+        <!-- Device list -->
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding NearbyDevices}"
+                        EmptyView="No devices found yet.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:NearbyDevice">
+                    <Border Margin="0,4" StrokeThickness="1" Stroke="#E0E0E0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="*,Auto" Padding="16">
+                            <VerticalStackLayout Grid.Column="0">
+                                <Label Text="{Binding Name}" FontSize="17" FontAttributes="Bold" />
+                                <Label Text="{Binding SignalDisplay}" FontSize="13" TextColor="Gray" />
+                            </VerticalStackLayout>
+
+                            <Button Grid.Column="1"
+                                    Text="Connect"
+                                    BackgroundColor="#0A84FF"
+                                    TextColor="White"
+                                    CornerRadius="8"
+                                    FontSize="14"
+                                    CommandParameter="{Binding .}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DiscoverViewModel}}, Path=ConnectToDeviceCommand}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>
