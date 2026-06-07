@@ -5,10 +5,6 @@
              x:Class="BlueChat.Views.SettingsPage"
              Title="Settings">
 
-    <ContentPage.BindingContext>
-        <vm:SettingsViewModel />
-    </ContentPage.BindingContext>
-
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="20">
 

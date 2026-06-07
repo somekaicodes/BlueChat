@@ -1,3 +1,4 @@
+using BlueChat.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -8,14 +9,17 @@ public partial class SettingsViewModel : ObservableObject
     private const string DeviceNameKey = "device_name";
     private const string DiscoverableKey = "discoverable";
 
+    private readonly IBlePeripheralService _peripheral;
+
     [ObservableProperty]
     private string _deviceName = string.Empty;
 
     [ObservableProperty]
     private bool _isDiscoverable;
 
-    public SettingsViewModel()
+    public SettingsViewModel(IBlePeripheralService peripheral)
     {
+        _peripheral = peripheral;
         _deviceName = Preferences.Default.Get(DeviceNameKey, "My Device");
         _isDiscoverable = Preferences.Default.Get(DiscoverableKey, false);
     }
@@ -30,6 +34,11 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnIsDiscoverableChanged(bool value)
     {
         Preferences.Default.Set(DiscoverableKey, value);
-        // TODO: start/stop BLE peripheral advertising
+
+        var name = Preferences.Default.Get(DeviceNameKey, "My Device");
+        if (value)
+            _ = _peripheral.StartAdvertisingAsync(name);
+        else
+            _ = _peripheral.StopAdvertisingAsync();
     }
 }

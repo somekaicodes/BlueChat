@@ -23,6 +23,11 @@ public static class MauiProgram
 
         // Services
         builder.Services.AddSingleton<BleService>();
+#if ANDROID
+        builder.Services.AddSingleton<IBlePeripheralService, BlueChat.Platforms.Android.BlePeripheralService>();
+#elif IOS
+        builder.Services.AddSingleton<IBlePeripheralService, BlueChat.Platforms.iOS.BlePeripheralService>();
+#endif
         builder.Services.AddSingleton<TtsService>();
         builder.Services.AddSingleton<ISpeechToText>(SpeechToText.Default);
         builder.Services.AddSingleton<SttService>();

@@ -15,11 +15,10 @@ namespace BlueChat.Services;
 /// </summary>
 public class BleService
 {
-    // Custom service / characteristic UUIDs — shared across all BlueChat installs
-    public static readonly Guid ServiceUuid       = Guid.Parse("12345678-1234-1234-1234-1234567890ab");
-    public static readonly Guid RequestCharUuid   = Guid.Parse("12345678-1234-1234-1234-1234567890ac");
-    public static readonly Guid ResponseCharUuid  = Guid.Parse("12345678-1234-1234-1234-1234567890ad");
-    public static readonly Guid MessageCharUuid   = Guid.Parse("12345678-1234-1234-1234-1234567890ae");
+    private static readonly Guid ServiceUuid      = Guid.Parse(BleConstants.ServiceUuid);
+    private static readonly Guid RequestCharUuid  = Guid.Parse(BleConstants.RequestCharUuid);
+    private static readonly Guid ResponseCharUuid = Guid.Parse(BleConstants.ResponseCharUuid);
+    private static readonly Guid MessageCharUuid  = Guid.Parse(BleConstants.MessageCharUuid);
 
     private readonly IBluetoothLE _ble;
     private readonly IAdapter _adapter;
