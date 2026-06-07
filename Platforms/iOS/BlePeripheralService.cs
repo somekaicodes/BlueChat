@@ -9,7 +9,6 @@ public class BlePeripheralService : IBlePeripheralService
     private CBPeripheralManager? _peripheralManager;
     private CBMutableCharacteristic? _responseChar;
     private CBMutableCharacteristic? _messageChar;
-    private readonly List<CBCentral> _subscribedCentrals = [];
     private string _pendingDeviceName = string.Empty;
     private PeripheralDelegate? _delegate;
 
@@ -24,8 +23,6 @@ public class BlePeripheralService : IBlePeripheralService
         _delegate = new PeripheralDelegate(
             onRequest: name => ConnectionRequestReceived?.Invoke(name),
             onMessage: msg => MessageReceived?.Invoke(msg),
-            onSubscribe: central => { if (!_subscribedCentrals.Contains(central)) _subscribedCentrals.Add(central); },
-            onUnsubscribe: central => _subscribedCentrals.Remove(central),
             onReady: StartAdvertisingInternal);
 
         _peripheralManager = new CBPeripheralManager(_delegate, null);
@@ -60,10 +57,7 @@ public class BlePeripheralService : IBlePeripheralService
         service.Characteristics = [requestChar, _responseChar, _messageChar];
         _peripheralManager.AddService(service);
 
-        _delegate!.ResponseChar = _responseChar;
-        _delegate.MessageChar = _messageChar;
-        _delegate.SubscribedCentrals = _subscribedCentrals;
-        _delegate.PeripheralManager = _peripheralManager;
+        _delegate!.PeripheralManager = _peripheralManager;
 
         _peripheralManager.StartAdvertising(new StartAdvertisingOptions
         {
@@ -76,7 +70,6 @@ public class BlePeripheralService : IBlePeripheralService
     {
         _peripheralManager?.StopAdvertising();
         _peripheralManager?.RemoveAllServices();
-        _subscribedCentrals.Clear();
         return Task.CompletedTask;
     }
 
@@ -91,8 +84,7 @@ public class BlePeripheralService : IBlePeripheralService
     public Task SendResponseAsync(bool accepted)
     {
         if (_responseChar == null || _peripheralManager == null) return Task.CompletedTask;
-        var bytes = System.Text.Encoding.UTF8.GetBytes(accepted ? "accept" : "decline");
-        var data = NSData.FromArray(bytes);
+        var data = NSData.FromArray(System.Text.Encoding.UTF8.GetBytes(accepted ? "accept" : "decline"));
         _peripheralManager.UpdateValue(data, _responseChar, null);
         return Task.CompletedTask;
     }
@@ -103,13 +95,8 @@ public class BlePeripheralService : IBlePeripheralService
 class PeripheralDelegate(
     Action<string> onRequest,
     Action<string> onMessage,
-    Action<CBCentral> onSubscribe,
-    Action<CBCentral> onUnsubscribe,
     Action onReady) : CBPeripheralManagerDelegate
 {
-    public CBMutableCharacteristic? ResponseChar { get; set; }
-    public CBMutableCharacteristic? MessageChar { get; set; }
-    public List<CBCentral>? SubscribedCentrals { get; set; }
     public CBPeripheralManager? PeripheralManager { get; set; }
 
     public override void StateUpdated(CBPeripheralManager peripheral)
@@ -134,9 +121,4 @@ class PeripheralDelegate(
         }
     }
 
-    public override void CentralSubscribedToCharacteristic(CBPeripheralManager peripheral, CBCentral central, CBCharacteristic characteristic)
-        => onSubscribe(central);
-
-    public override void CentralUnsubscribedFromCharacteristic(CBPeripheralManager peripheral, CBCentral central, CBCharacteristic characteristic)
-        => onUnsubscribe(central);
 }
