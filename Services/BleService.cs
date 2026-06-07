@@ -26,6 +26,7 @@ public class BleService
 
     public bool IsScanning => _adapter.IsScanning;
     public bool IsConnected => _connectedDevice != null;
+    public bool IsBluetoothOn => _ble.State == BluetoothState.On;
 
     public BleService()
     {

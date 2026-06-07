@@ -29,11 +29,7 @@ public partial class DiscoverViewModel : ObservableObject
         _chat = chat;
 
         _ble.DeviceDiscovered += OnDeviceDiscovered;
-
-        // Device A: remote accepted/declined our request
         _ble.ConnectionResponseReceived += OnConnectionResponseReceived;
-
-        // Device B: someone wants to chat with us
         _peripheral.ConnectionRequestReceived += OnConnectionRequestReceived;
     }
 
@@ -48,35 +44,71 @@ public partial class DiscoverViewModel : ObservableObject
             await _ble.StopScanAsync();
             IsScanning = false;
             StatusMessage = "Scan stopped.";
+            return;
         }
-        else
+
+        // Check Bluetooth is on
+        if (!_ble.IsBluetoothOn)
         {
-            // Request location permission (required for BLE scanning on Android)
-            var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-            if (status != PermissionStatus.Granted)
-            {
-                StatusMessage = "Location permission is required to scan for nearby devices.";
-                return;
-            }
+            StatusMessage = "Bluetooth is off. Please enable it in Settings.";
+            return;
+        }
 
-            NearbyDevices.Clear();
-            IsScanning = true;
-            StatusMessage = "Scanning...";
-            _scanCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        // Request permissions
+        if (!await RequestPermissionsAsync())
+            return;
 
-            try
+        NearbyDevices.Clear();
+        IsScanning = true;
+        StatusMessage = "Scanning...";
+        _scanCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+
+        try
+        {
+            await _ble.StartScanAsync(_scanCts.Token);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Scan error: {ex.Message}";
+        }
+        finally
+        {
+            IsScanning = false;
+            StatusMessage = NearbyDevices.Count == 0
+                ? "No devices found."
+                : $"Found {NearbyDevices.Count} device(s). Tap Connect to start chatting.";
+        }
+    }
+
+    private static async Task<bool> RequestPermissionsAsync()
+    {
+        // Location is required for BLE scanning on Android
+        var location = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+        if (location != PermissionStatus.Granted)
+        {
+            await Shell.Current.DisplayAlertAsync(
+                "Permission Required",
+                "Location permission is needed to scan for nearby Bluetooth devices.",
+                "OK");
+            return false;
+        }
+
+        // Bluetooth permissions on Android 12+
+#if ANDROID
+        if (OperatingSystem.IsAndroidVersionAtLeast(31))
+        {
+            var bt = await Permissions.RequestAsync<Permissions.Bluetooth>();
+            if (bt != PermissionStatus.Granted)
             {
-                await _ble.StartScanAsync(_scanCts.Token);
-            }
-            catch (OperationCanceledException) { }
-            finally
-            {
-                IsScanning = false;
-                StatusMessage = NearbyDevices.Count == 0
-                    ? "No devices found."
-                    : $"Found {NearbyDevices.Count} device(s). Tap Connect to start chatting.";
+                await Shell.Current.DisplayAlertAsync(
+                    "Permission Required",
+                    "Bluetooth permission is needed to scan for nearby devices.",
+                    "OK");
+                return false;
             }
         }
+#endif
+        return true;
     }
 
     private void OnDeviceDiscovered(NearbyDevice device)
@@ -99,12 +131,18 @@ public partial class DiscoverViewModel : ObservableObject
         _pendingRemoteName = device.Name;
         StatusMessage = $"Sending request to {device.Name}...";
 
-        var myName = Preferences.Default.Get("device_name", "Unknown");
-        var ok = await _ble.SendConnectionRequestAsync(device, myName);
-
-        StatusMessage = ok
-            ? $"Request sent — waiting for {device.Name} to accept."
-            : "Connection failed. Make sure the other device has BlueChat open.";
+        try
+        {
+            var myName = Preferences.Default.Get("device_name", "Unknown");
+            var ok = await _ble.SendConnectionRequestAsync(device, myName);
+            StatusMessage = ok
+                ? $"Request sent — waiting for {device.Name} to accept."
+                : "Connection failed. Make sure the other device has BlueChat open.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Connection error: {ex.Message}";
+        }
     }
 
     private void OnConnectionResponseReceived(bool accepted)
