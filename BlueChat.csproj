@@ -82,14 +82,11 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
-	<!-- Inject dark mode icon into MAUI's generated iOS asset catalog -->
+	<!-- Inject dark mode icon into MAUI's generated iOS asset catalogs -->
 	<Target Name="InjectDarkIcon" AfterTargets="ResizetizeImages"
 	        Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-		<PropertyGroup>
-			<_IconSetContents>$(IntermediateOutputPath)resizetizer/r/Assets.xcassets/appicon.appiconset/Contents.json</_IconSetContents>
-		</PropertyGroup>
-		<Exec Command="python3 &quot;$(MSBuildProjectDirectory)/inject_dark_icon.py&quot; &quot;$(_IconSetContents)&quot; &quot;$(MSBuildProjectDirectory)/Resources/AppIcon/appicon_dark.png&quot;"
-		      IgnoreExitCode="false" />
+		<Exec Command="python3 &quot;$(MSBuildProjectDirectory)/inject_dark_icon.py&quot; &quot;$(IntermediateOutputPath)&quot; &quot;$(MSBuildProjectDirectory)/Resources/AppIcon/appicon_dark.png&quot;"
+		      IgnoreExitCode="true" />
 	</Target>
 
 	<!-- Clear macOS extended attributes before codesigning -->
