@@ -9,17 +9,17 @@
 
     <TabBar>
         <ShellContent Title="Discover"
-                      Icon="radar.png"
+                      Icon="icon_discover.svg"
                       ContentTemplate="{DataTemplate views:DiscoverPage}"
                       Route="Discover" />
 
         <ShellContent Title="Chat"
-                      Icon="chat.png"
+                      Icon="icon_chat.svg"
                       ContentTemplate="{DataTemplate views:ChatPage}"
                       Route="Chat" />
 
         <ShellContent Title="Settings"
-                      Icon="settings.png"
+                      Icon="icon_settings.svg"
                       ContentTemplate="{DataTemplate views:SettingsPage}"
                       Route="Settings" />
     </TabBar>

@@ -93,6 +93,9 @@ public class BleService
             await _adapter.ConnectToDeviceAsync(nativeDevice);
             _connectedDevice = nativeDevice;
 
+            // Brief delay to let the remote GATT server finish setup
+            await Task.Delay(600);
+
             var service = await nativeDevice.GetServiceAsync(ServiceUuid);
             if (service == null) return false;
 

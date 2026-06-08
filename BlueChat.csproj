@@ -56,10 +56,16 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
+		<!-- iOS: full image, no scaling (system applies its own rounded rect) -->
+		<MauiIcon Include="Resources\AppIcon\appicon.png"
+		          Dark="Resources\AppIcon\appicon_dark.png"
+		          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'" />
+		<!-- Android: scale down inside adaptive icon safe zone -->
 		<MauiIcon Include="Resources\AppIcon\appicon.png"
 		          Dark="Resources\AppIcon\appicon_dark.png"
 		          Color="#1B30A0"
-		          ForegroundScale="0.75" />
+		          ForegroundScale="0.6"
+		          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1B30A0" BaseSize="128,128" />
