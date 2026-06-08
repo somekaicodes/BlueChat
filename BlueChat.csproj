@@ -40,6 +40,9 @@
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
 		<MauiVersion>10.0.60</MauiVersion>
+		<!-- Build output outside iCloud Documents to avoid xattr codesign failures -->
+		<BaseOutputPath>$(HOME)/Developer/BlueChatBuild/bin/</BaseOutputPath>
+		<BaseIntermediateOutputPath>$(HOME)/Developer/BlueChatBuild/obj/</BaseIntermediateOutputPath>
 		<CodesignKey>Apple Development: kkmin123446@icloud.com (96CSNF5L6K)</CodesignKey>
 		<CodesignProvision>iOS Team Provisioning Profile: com.kaikim.BlueChat</CodesignProvision>
 		<CodesignEntitlements>Platforms/iOS/Entitlements.plist</CodesignEntitlements>
@@ -54,7 +57,9 @@
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.png"
-		          Dark="Resources\AppIcon\appicon_dark.png" />
+		          Dark="Resources\AppIcon\appicon_dark.png"
+		          Color="#1B30A0"
+		          ForegroundScale="0.75" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1B30A0" BaseSize="128,128" />
