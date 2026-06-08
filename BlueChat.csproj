@@ -56,9 +56,10 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<!-- iOS: full image, no scaling (system applies its own rounded rect) -->
+		<!-- iOS: slight zoom in to hide thin border at edges -->
 		<MauiIcon Include="Resources\AppIcon\appicon.png"
 		          Dark="Resources\AppIcon\appicon_dark.png"
+		          ForegroundScale="1.05"
 		          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'" />
 		<!-- Android: scale down inside adaptive icon safe zone -->
 		<MauiIcon Include="Resources\AppIcon\appicon.png"
@@ -80,6 +81,16 @@
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
+
+	<!-- Inject dark mode icon into MAUI's generated iOS asset catalog -->
+	<Target Name="InjectDarkIcon" AfterTargets="ResizetizeImages"
+	        Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+		<PropertyGroup>
+			<_IconSetContents>$(IntermediateOutputPath)resizetizer/r/Assets.xcassets/appicon.appiconset/Contents.json</_IconSetContents>
+		</PropertyGroup>
+		<Exec Command="python3 &quot;$(MSBuildProjectDirectory)/inject_dark_icon.py&quot; &quot;$(_IconSetContents)&quot; &quot;$(MSBuildProjectDirectory)/Resources/AppIcon/appicon_dark.png&quot;"
+		      IgnoreExitCode="false" />
+	</Target>
 
 	<!-- Clear macOS extended attributes before codesigning -->
 	<Target Name="ClearXattrBeforeCodesign"
