@@ -21,36 +21,25 @@ if [ ! -d "$APP" ]; then
 fi
 
 # Inject dark icon into the actool-cloned xcassets and re-run actool
-echo ">> Injecting dark icon into actool assets..."
-CLONED="$OBJ/actool/cloned-assets/Assets.xcassets/appicon.appiconset"
-if [ -d "$CLONED" ]; then
-    cp "$DARK_SRC" "$CLONED/appicon_dark_1024.png"
-    python3 -c "
-import json
-path = '$CLONED/Contents.json'
-with open(path) as f: d = json.load(f)
-d['images'] = [i for i in d['images'] if 'appearances' not in i]
-d['images'].append({'appearances':[{'appearance':'luminosity','value':'dark'}],'filename':'appicon_dark_1024.png','idiom':'ios-marketing','size':'1024x1024','scale':'1x'})
-with open(path,'w') as f: json.dump(d,f,indent=2)
-print('Dark entry written to Contents.json')
-"
-    echo ">> Re-running actool to compile updated Assets.car..."
-    ACTOOL_OUT="$OBJ/actool/bundle"
-    rm -rf "$ACTOOL_OUT" && mkdir -p "$ACTOOL_OUT"
-    xcrun actool --errors --warnings --notices \
-        --output-format xml1 \
-        --app-icon appicon \
-        --compress-pngs \
-        --target-device iphone --target-device ipad \
-        --minimum-deployment-target 15.0 \
-        --platform iphoneos \
-        --output-partial-info-plist "$OBJ/actool/partial-info.plist" \
-        --compile "$ACTOOL_OUT" \
-        "$OBJ/actool/cloned-assets/Assets.xcassets" 2>&1 | grep -v "^$"
+echo ">> Injecting dark icon variants at all sizes..."
+python3 "inject_dark_icon.py" "$OBJ" "$DARK_SRC"
 
-    cp "$ACTOOL_OUT/Assets.car" "$APP/Assets.car"
-    echo ">> Assets.car updated with dark icon"
-fi
+echo ">> Re-running actool to compile updated Assets.car..."
+ACTOOL_OUT="$OBJ/actool/bundle"
+rm -rf "$ACTOOL_OUT" && mkdir -p "$ACTOOL_OUT"
+xcrun actool --errors --warnings --notices \
+    --output-format xml1 \
+    --app-icon appicon \
+    --compress-pngs \
+    --target-device iphone --target-device ipad \
+    --minimum-deployment-target 15.0 \
+    --platform iphoneos \
+    --output-partial-info-plist "$OBJ/actool/partial-info.plist" \
+    --compile "$ACTOOL_OUT" \
+    "$OBJ/actool/cloned-assets/Assets.xcassets" 2>&1 | grep -v "^$"
+
+cp "$ACTOOL_OUT/Assets.car" "$APP/Assets.car"
+echo ">> Assets.car updated with all dark icon sizes"
 
 echo ">> Embedding provisioning profile..."
 cp "$PROFILE" "$APP/embedded.mobileprovision"
