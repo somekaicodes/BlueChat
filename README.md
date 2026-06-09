@@ -1,16 +1,8 @@
-# BlueChat
+<h1><img src="screenshots/icon_light.png" width="50" style="vertical-align:middle"/> BlueChat</h1>
 
 **Peer-to-peer messaging over Bluetooth — no internet required.**
 
 BlueChat lets two nearby devices chat directly using Bluetooth Low Energy (BLE). No Wi-Fi, no cell signal, no server. Just open the app and start talking.
-
-<p align="center">
-  <img src="screenshots/icon_light.png" width="120"/>
-</p>
-
-<p align="center">
-  <img src="screenshots/chat_android.jpg" width="320"/>
-</p>
 
 ---
 
@@ -43,10 +35,15 @@ Most messaging apps assume you have an internet connection. BlueChat doesn't. It
 | **BLE Discovery** | Scan for nearby BlueChat devices and see signal strength (dBm) in real time |
 | **Chat Requests** | Incoming connections prompt an Accept / Decline dialog — you control who you talk to |
 | **Speech-to-Text** | Tap the microphone in the chat input to dictate your message |
-| **Text-to-Speech** | Messages can be read aloud, useful for eyes-free or accessibility scenarios |
+| **Text-to-Speech** | Tap the speaker icon to have incoming messages read aloud |
 | **Device Name** | Set a custom display name so nearby users know who they're connecting to |
 | **Discoverability Toggle** | Switch off broadcasting at any time to go invisible to scanners |
 | **Dark Mode Icon** | Adaptive app icon — light blue on iOS standard mode, dark variant for iOS dark mode |
+
+<p align="center">
+  <img src="screenshots/chat_android.jpg" width="420"/>
+  <br/><i>Chat input bar — speaker (text-to-speech) on the left, microphone (speech-to-text) on the right</i>
+</p>
 
 ---
 
