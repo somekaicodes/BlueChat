@@ -5,6 +5,10 @@ BlueChat  </h1>
 
 BlueChat lets two nearby devices chat directly using Bluetooth Low Energy (BLE). No Wi-Fi, no cell signal, no server. Just open the app and start talking.
 
+<p align="center">
+  <img src="screenshots/chat_android.jpg" width="380"/>
+</p>
+
 ---
 
 ## Why BlueChat?
@@ -42,7 +46,7 @@ Most messaging apps assume you have an internet connection. BlueChat doesn't. It
 | **Dark Mode Icon** | Adaptive app icon — light blue on iOS standard mode, dark variant for iOS dark mode |
 
 <p align="center">
-  <img src="screenshots/chat_android.jpg" width="420"/>
+  <img src="screenshots/speech_android.jpg" width="420"/>
   <br/><i>Chat input bar — speaker (text-to-speech) on the left, microphone (speech-to-text) on the right</i>
 </p>
 
