@@ -1,4 +1,5 @@
-<h1>BlueChat <img src="screenshots/icon_light.png" width="50" style="vertical-align:middle"/> </h1>
+<h1><img src="screenshots/icon_light.png" width="50" style="vertical-align:middle"/><br>
+BlueChat  </h1>
 
 **Peer-to-peer messaging over Bluetooth — no internet required.**
 
